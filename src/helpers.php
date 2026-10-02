@@ -74,6 +74,8 @@ function owc_activity_log_get_settings(): array
 		'ignored_option_names' => array(),
 		'ignored_post_types'   => array(),
 		'enabled_groups'       => owc_activity_log_all_groups(),
+		'siem_endpoint'        => '',
+		'siem_token'           => '',
 	);
 
 	$saved = get_option( OWC_ACTIVITY_LOG_SETTINGS_KEY, array() );

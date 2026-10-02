@@ -97,6 +97,30 @@ class AdminPageController
 		$enabled_groups = array_intersect( $posted_groups, $all_groups );
 
 		$log_ip = isset( $_POST['log_ip'] ) && '1' === $_POST['log_ip'];
+
+		$current       = owc_activity_log_get_settings();
+		$raw_endpoint  = isset( $_POST['siem_endpoint'] ) ? trim( (string) wp_unslash( $_POST['siem_endpoint'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized below
+		$siem_endpoint = esc_url_raw( $raw_endpoint, array( 'https' ) );
+
+		if ( '' !== $raw_endpoint && ( '' === $siem_endpoint || ! wp_parse_url( $siem_endpoint, PHP_URL_HOST ) ) ) {
+			$siem_endpoint = $current['siem_endpoint'];
+
+			add_settings_error(
+				'owc_at_settings',
+				'invalid_siem_endpoint',
+				__( 'The SIEM endpoint must be a valid HTTPS URL. The previous value has been kept.', 'owc-activity-log' )
+			);
+		}
+
+		// An empty token field keeps the stored token, so it never has to be rendered in the form.
+		$siem_token = (string) $current['siem_token'];
+
+		if ( ! empty( $_POST['siem_token_clear'] ) ) {
+			$siem_token = '';
+		} elseif ( ! empty( $_POST['siem_token'] ) ) {
+			// Printable ASCII only; also prevents header injection.
+			$siem_token = (string) preg_replace( '/[^\x21-\x7E]/', '', (string) wp_unslash( $_POST['siem_token'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		}
 		// phpcs:enable
 
 		update_option(
@@ -108,6 +132,8 @@ class AdminPageController
 				'ignored_option_names' => array_values( $ignored_options ),
 				'ignored_post_types'   => array_values( $ignored_post_types ),
 				'enabled_groups'       => array_values( $enabled_groups ),
+				'siem_endpoint'        => $siem_endpoint,
+				'siem_token'           => $siem_token,
 			)
 		);
 

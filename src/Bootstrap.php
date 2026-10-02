@@ -23,6 +23,7 @@ use OWCActivityLog\Providers\AdminServiceProvider;
 use OWCActivityLog\Providers\DatabaseServiceProvider;
 use OWCActivityLog\Providers\ListenerServiceProvider;
 use OWCActivityLog\Providers\MaintenanceServiceProvider;
+use OWCActivityLog\Providers\SiemServiceProvider;
 
 require_once __DIR__ . '/helpers.php';
 
@@ -65,6 +66,7 @@ final class Bootstrap
 			new ListenerServiceProvider(),
 			new AdminServiceProvider(),
 			new MaintenanceServiceProvider(),
+			new SiemServiceProvider(),
 		);
 	}
 

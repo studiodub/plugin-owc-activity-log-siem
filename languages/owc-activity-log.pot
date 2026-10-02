@@ -557,3 +557,39 @@ msgstr ""
 #: src/Views/admin/settings-page.php:133
 msgid "One post type per line. Posts of these types are not logged. Wildcards supported: my_cpt_*"
 msgstr ""
+
+#: src/Controllers/AdminPageController.php
+msgid "The SIEM endpoint must be a valid HTTPS URL. The previous value has been kept."
+msgstr ""
+
+#: src/Views/admin/settings-page.php
+msgid "SIEM integration"
+msgstr ""
+
+#: src/Views/admin/settings-page.php
+msgid "Forward every logged event as JSON via a POST request to an external SIEM. Leave the endpoint empty to disable."
+msgstr ""
+
+#: src/Views/admin/settings-page.php
+msgid "SIEM endpoint URL"
+msgstr ""
+
+#: src/Views/admin/settings-page.php
+msgid "Only HTTPS URLs are accepted."
+msgstr ""
+
+#: src/Views/admin/settings-page.php
+msgid "SIEM API token"
+msgstr ""
+
+#: src/Views/admin/settings-page.php
+msgid "Token saved"
+msgstr ""
+
+#: src/Views/admin/settings-page.php
+msgid "Remove saved token"
+msgstr ""
+
+#: src/Views/admin/settings-page.php
+msgid "Optional. Sent as \"Authorization: Bearer <token>\" header. Leave empty to keep the saved token."
+msgstr ""

@@ -561,3 +561,39 @@ msgstr "Genegeerde berichttypen"
 #: src/Views/admin/settings-page.php:133
 msgid "One post type per line. Posts of these types are not logged. Wildcards supported: my_cpt_*"
 msgstr "Eén berichttype per regel. Berichten van deze typen worden niet gelogd. Wildcards ondersteund: mijn_cpt_*"
+
+#: src/Controllers/AdminPageController.php
+msgid "The SIEM endpoint must be a valid HTTPS URL. The previous value has been kept."
+msgstr "Het SIEM-endpoint moet een geldige HTTPS-URL zijn. De vorige waarde is behouden."
+
+#: src/Views/admin/settings-page.php
+msgid "SIEM integration"
+msgstr "SIEM-integratie"
+
+#: src/Views/admin/settings-page.php
+msgid "Forward every logged event as JSON via a POST request to an external SIEM. Leave the endpoint empty to disable."
+msgstr "Stuur elke gelogde gebeurtenis als JSON via een POST-request door naar een externe SIEM. Laat het endpoint leeg om dit uit te schakelen."
+
+#: src/Views/admin/settings-page.php
+msgid "SIEM endpoint URL"
+msgstr "SIEM-endpoint-URL"
+
+#: src/Views/admin/settings-page.php
+msgid "Only HTTPS URLs are accepted."
+msgstr "Alleen HTTPS-URL's worden geaccepteerd."
+
+#: src/Views/admin/settings-page.php
+msgid "SIEM API token"
+msgstr "SIEM API-token"
+
+#: src/Views/admin/settings-page.php
+msgid "Token saved"
+msgstr "Token opgeslagen"
+
+#: src/Views/admin/settings-page.php
+msgid "Remove saved token"
+msgstr "Opgeslagen token verwijderen"
+
+#: src/Views/admin/settings-page.php
+msgid "Optional. Sent as \"Authorization: Bearer <token>\" header. Leave empty to keep the saved token."
+msgstr "Optioneel. Wordt verzonden als \"Authorization: Bearer <token>\"-header. Laat leeg om het opgeslagen token te behouden."

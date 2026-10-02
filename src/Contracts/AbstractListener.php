@@ -66,20 +66,29 @@ abstract class AbstractListener
 		$user_id    = $user instanceof WP_User ? $user->ID : 0;
 		$user_login = $user instanceof WP_User ? $user->user_login : '';
 
-		$this->repository->insert(
-			array(
-				'created_at'  => current_time( 'mysql', true ),
-				'group'       => $group,
-				'action'      => $action,
-				'message'     => $message,
-				'user_id'     => $context['user_id'] ?? $user_id,
-				'user_login'  => $context['user_login'] ?? $user_login,
-				'object_id'   => $context['object_id'] ?? 0,
-				'object_type' => $context['object_type'] ?? '',
-				'meta'        => isset( $context['meta'] ) ? wp_json_encode( $context['meta'] ) : null,
-				'ip'          => ( owc_activity_log_get_settings()['log_ip'] ?? false ) ? $this->get_ip() : '',
-			)
+		$entry = array(
+			'created_at'  => current_time( 'mysql', true ),
+			'group'       => $group,
+			'action'      => $action,
+			'message'     => $message,
+			'user_id'     => $context['user_id'] ?? $user_id,
+			'user_login'  => $context['user_login'] ?? $user_login,
+			'object_id'   => $context['object_id'] ?? 0,
+			'object_type' => $context['object_type'] ?? '',
+			'meta'        => isset( $context['meta'] ) ? wp_json_encode( $context['meta'] ) : null,
+			'ip'          => ( owc_activity_log_get_settings()['log_ip'] ?? false ) ? $this->get_ip() : '',
 		);
+
+		$this->repository->insert( $entry );
+
+		/**
+		 * Fires after an activity entry has been recorded.
+		 *
+		 * @since 1.3.0
+		 *
+		 * @param array $entry The logged entry. 'meta' is a JSON encoded string or null.
+		 */
+		do_action( 'owc_activity_log_entry_logged', $entry );
 	}
 
 	/**

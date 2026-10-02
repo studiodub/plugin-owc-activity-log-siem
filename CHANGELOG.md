@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+-   Added: forward logged events as JSON to a configurable SIEM endpoint
+-   Added: `owc_activity_log_entry_logged` action
+
 ## [v1.2.0] - 2026-09-08
 
 -   Added: configure post types to be excluded from logging

@@ -135,6 +135,53 @@ $all_groups = owc_activity_log_all_groups();
 			</tr>
 		</table>
 
+		<h2><?php esc_html_e( 'SIEM integration', 'owc-activity-log' ); ?></h2>
+		<p><?php esc_html_e( 'Forward every logged event as JSON via a POST request to an external SIEM. Leave the endpoint empty to disable.', 'owc-activity-log' ); ?></p>
+
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row">
+					<label for="siem_endpoint"><?php esc_html_e( 'SIEM endpoint URL', 'owc-activity-log' ); ?></label>
+				</th>
+				<td>
+					<input
+						type="url"
+						id="siem_endpoint"
+						name="siem_endpoint"
+						value="<?php echo esc_attr( $settings['siem_endpoint'] ); ?>"
+						placeholder="https://"
+						pattern="https://.+"
+						class="regular-text code"
+					>
+					<p class="description"><?php esc_html_e( 'Only HTTPS URLs are accepted.', 'owc-activity-log' ); ?></p>
+				</td>
+			</tr>
+
+			<tr>
+				<th scope="row">
+					<label for="siem_token"><?php esc_html_e( 'SIEM API token', 'owc-activity-log' ); ?></label>
+				</th>
+				<td>
+					<input
+						type="password"
+						id="siem_token"
+						name="siem_token"
+						value=""
+						autocomplete="new-password"
+						placeholder="<?php echo '' !== $settings['siem_token'] ? esc_attr__( 'Token saved', 'owc-activity-log' ) : ''; ?>"
+						class="regular-text code"
+					>
+					<?php if ( '' !== $settings['siem_token'] ) : ?>
+						<label style="display:block;margin-top:4px;">
+							<input type="checkbox" name="siem_token_clear" value="1">
+							<?php esc_html_e( 'Remove saved token', 'owc-activity-log' ); ?>
+						</label>
+					<?php endif; ?>
+					<p class="description"><?php esc_html_e( 'Optional. Sent as "Authorization: Bearer <token>" header. Leave empty to keep the saved token.', 'owc-activity-log' ); ?></p>
+				</td>
+			</tr>
+		</table>
+
 		<?php submit_button(); ?>
 	</form>
 </div>
