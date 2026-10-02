@@ -27,12 +27,11 @@ use WP_User;
  *
  * @since 1.0.0
  */
-abstract class AbstractListener
-{
+abstract class AbstractListener {
+
 	protected ActivityRepository $repository;
 
-	public function __construct( ?ActivityRepository $repository = null )
-	{
+	public function __construct( ?ActivityRepository $repository = null ) {
 		$this->repository = $repository ?? new ActivityRepository();
 	}
 
@@ -45,8 +44,7 @@ abstract class AbstractListener
 	 * Register any filter hooks this listener needs, beyond get_hooks().
 	 * No-op by default; listeners that need a filter (not an action) override this.
 	 */
-	public function register_filter(): void
-	{
+	public function register_filter(): void {
 	}
 
 	/**
@@ -94,8 +92,7 @@ abstract class AbstractListener
 	/**
 	 * Get the visitor IP address.
 	 */
-	private function get_ip(): string
-	{
+	private function get_ip(): string {
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput
 		$candidates = array(
 			$_SERVER['HTTP_X_FORWARDED_FOR'] ?? '',
@@ -118,8 +115,7 @@ abstract class AbstractListener
 	/**
 	 * Truncate and stringify a value for storage.
 	 */
-	protected function truncate( mixed $value, int $max_length = 500 ): string
-	{
+	protected function truncate( mixed $value, int $max_length = 500 ): string {
 		if ( is_array( $value ) || is_object( $value ) ) {
 			$value = wp_json_encode( $value );
 		} else {
@@ -138,14 +134,15 @@ abstract class AbstractListener
 	 *
 	 * @since 1.2.0
 	 */
-	protected function is_ignored_post_type( string $post_type ): bool
-	{
+	protected function is_ignored_post_type( string $post_type ): bool {
 		$settings      = owc_activity_log_get_settings();
 		$extra_ignored = (array) ( $settings['ignored_post_types'] ?? array() );
 		$all_ignored   = (array) apply_filters( 'owc_activity_log_ignored_post_types', $extra_ignored );
 
 		foreach ( $all_ignored as $pattern ) {
-			if ( fnmatch( $pattern, $post_type ) ) return true;
+			if ( fnmatch( $pattern, $post_type ) ) {
+				return true;
+			}
 		}
 
 		return false;

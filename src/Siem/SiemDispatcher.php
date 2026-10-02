@@ -27,8 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.3.0
  */
-class SiemDispatcher
-{
+class SiemDispatcher {
+
 	private array $queue = array();
 
 	public function __construct(
@@ -40,8 +40,7 @@ class SiemDispatcher
 	/**
 	 * Queue a logged entry for delivery.
 	 */
-	public function queue( array $entry ): void
-	{
+	public function queue( array $entry ): void {
 		$payload = $this->build_payload( $entry );
 
 		if ( ! empty( $payload ) ) {
@@ -52,8 +51,7 @@ class SiemDispatcher
 	/**
 	 * Send all queued payloads.
 	 */
-	public function flush(): void
-	{
+	public function flush(): void {
 		if ( empty( $this->queue ) ) {
 			return;
 		}
@@ -77,8 +75,7 @@ class SiemDispatcher
 	/**
 	 * Build the JSON payload for a logged entry.
 	 */
-	public function build_payload( array $entry ): array
-	{
+	public function build_payload( array $entry ): array {
 		$group   = (string) ( $entry['group'] ?? '' );
 		$action  = (string) ( $entry['action'] ?? '' );
 		$created = strtotime( ( $entry['created_at'] ?? '' ) . ' UTC' );
@@ -121,8 +118,7 @@ class SiemDispatcher
 	/**
 	 * POST a single payload. Returns false when the endpoint could not be reached.
 	 */
-	private function send( array $payload ): bool
-	{
+	private function send( array $payload ): bool {
 		$body = wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
 		if ( false === $body ) {

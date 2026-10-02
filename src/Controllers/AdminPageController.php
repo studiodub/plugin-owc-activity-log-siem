@@ -27,13 +27,12 @@ use OWCActivityLog\Database\ActivityRepository;
  *
  * @since 1.0.0
  */
-class AdminPageController
-{
+class AdminPageController {
+
 	/**
 	 * Render the activity log page.
 	 */
-	public function render_log(): void
-	{
+	public function render_log(): void {
 		if ( ! current_user_can( settings_page_cap() ) ) {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'owc-activity-log' ) );
 		}
@@ -58,8 +57,7 @@ class AdminPageController
 	/**
 	 * Render the settings page.
 	 */
-	public function render_settings(): void
-	{
+	public function render_settings(): void {
 		if ( ! current_user_can( settings_page_cap() ) ) {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'owc-activity-log' ) );
 		}
@@ -76,8 +74,7 @@ class AdminPageController
 	/**
 	 * Save settings from POST data.
 	 */
-	private function save_settings(): void
-	{
+	private function save_settings(): void {
 		$all_groups = owc_activity_log_all_groups();
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- already verified above

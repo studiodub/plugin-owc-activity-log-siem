@@ -16,8 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use OWCActivityLog\Siem\SiemDispatcher;
 
-function owc_activity_log_siem_entry( array $overrides = array() ): array
-{
+function owc_activity_log_siem_entry( array $overrides = array() ): array {
 	return array_merge(
 		array(
 			'created_at'  => '2026-01-01 12:00:00',
@@ -35,8 +34,7 @@ function owc_activity_log_siem_entry( array $overrides = array() ): array
 	);
 }
 
-function owc_activity_log_siem_mock_wp(): void
-{
+function owc_activity_log_siem_mock_wp(): void {
 	WP_Mock::userFunction( 'home_url' )->andReturn( 'https://met-matthijs.nl' );
 	WP_Mock::userFunction( 'untrailingslashit' )->andReturnUsing( fn( $v ) => rtrim( $v, '/\\' ) );
 	WP_Mock::userFunction( 'apply_filters' )->andReturnArg( 1 );

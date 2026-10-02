@@ -26,10 +26,9 @@ use OWCActivityLog\Siem\SiemDispatcher;
  *
  * @since 1.3.0
  */
-class SiemServiceProvider extends ServiceProvider
-{
-	public function register(): void
-	{
+class SiemServiceProvider extends ServiceProvider {
+
+	public function register(): void {
 		$settings = owc_activity_log_get_settings();
 		$endpoint = (string) ( $settings['siem_endpoint'] ?? '' );
 

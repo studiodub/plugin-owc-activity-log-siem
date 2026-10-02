@@ -22,8 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-function owc_activity_log_render_view( string $view, array $data = array() ): void
-{
+function owc_activity_log_render_view( string $view, array $data = array() ): void {
 	$file = OWC_ACTIVITY_LOG_DIR_PATH . 'src/Views/' . $view . '.php';
 
 	if ( ! file_exists( $file ) ) {
@@ -42,8 +41,7 @@ function owc_activity_log_render_view( string $view, array $data = array() ): vo
  *
  * @since 1.1.0
  */
-function owc_activity_log_all_groups(): array
-{
+function owc_activity_log_all_groups(): array {
 	return array(
 		'posts',
 		'meta',
@@ -65,8 +63,7 @@ function owc_activity_log_all_groups(): array
  *
  * @since 1.0.0
  */
-function owc_activity_log_get_settings(): array
-{
+function owc_activity_log_get_settings(): array {
 	$defaults = array(
 		'retention_days'       => OWC_ACTIVITY_LOG_DEFAULT_RETENTION_DAYS,
 		'log_ip'               => false,
@@ -95,8 +92,7 @@ function owc_activity_log_get_settings(): array
  *
  * @since 1.1.0
  */
-function owc_activity_log_maybe_migrate_enabled_groups(): void
-{
+function owc_activity_log_maybe_migrate_enabled_groups(): void {
 	if ( get_option( 'owc_activity_log_gf_group_migrated' ) ) {
 		return;
 	}
@@ -121,8 +117,7 @@ function owc_activity_log_maybe_migrate_enabled_groups(): void
  *
  * @since 1.0.0
  */
-function owc_activity_log_group_enabled( string $group ): bool
-{
+function owc_activity_log_group_enabled( string $group ): bool {
 	$settings = owc_activity_log_get_settings();
 
 	return in_array( $group, $settings['enabled_groups'], true );
@@ -131,8 +126,7 @@ function owc_activity_log_group_enabled( string $group ): bool
 /**
  * @since 1.0.2
  */
-function settings_page_cap(): string
-{
+function settings_page_cap(): string {
 	$cap = apply_filters( 'owc_activity_log_admin_page_overview_cap', OWC_ACTIVITY_LOG_SETTINGS_PAGE_CAP );
 
 	return is_string( $cap ) && '' !== trim( $cap ) ? $cap : OWC_ACTIVITY_LOG_SETTINGS_PAGE_CAP;

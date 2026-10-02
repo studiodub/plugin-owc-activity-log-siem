@@ -32,12 +32,11 @@ require_once __DIR__ . '/helpers.php';
  *
  * @since 1.0.0
  */
-final class Bootstrap
-{
+final class Bootstrap {
+
 	private array $providers;
 
-	public function __construct()
-	{
+	public function __construct() {
 		owc_activity_log_maybe_migrate_enabled_groups();
 
 		$this->register_plugin_text_domain();
@@ -49,8 +48,7 @@ final class Bootstrap
 	/**
 	 * @since 1.1.0
 	 */
-	protected function register_plugin_text_domain(): void
-	{
+	protected function register_plugin_text_domain(): void {
 		add_action(
 			'init',
 			function () {
@@ -59,8 +57,7 @@ final class Bootstrap
 		);
 	}
 
-	protected function get_providers(): array
-	{
+	protected function get_providers(): array {
 		return array(
 			new DatabaseServiceProvider(),
 			new ListenerServiceProvider(),
@@ -70,15 +67,13 @@ final class Bootstrap
 		);
 	}
 
-	protected function register_providers(): void
-	{
+	protected function register_providers(): void {
 		foreach ( $this->providers as $provider ) {
 			$provider->register();
 		}
 	}
 
-	protected function boot_providers(): void
-	{
+	protected function boot_providers(): void {
 		foreach ( $this->providers as $provider ) {
 			$provider->boot();
 		}
