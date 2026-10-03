@@ -182,6 +182,10 @@ $all_groups = owc_activity_log_all_groups();
 			</tr>
 		</table>
 
+		<table class="form-table" role="presentation">
+			<?php do_settings_fields( 'owc-activity-log-settings', 'owc_activity_log_inventory' ); ?>
+		</table>
+
 		<?php submit_button(); ?>
 	</form>
 </div>

@@ -73,6 +73,13 @@ class SiemDispatcher {
 	}
 
 	/**
+	 * Send a single payload immediately.
+	 */
+	public function send_payload( array $payload ): bool {
+		return $this->send( $payload, false );
+	}
+
+	/**
 	 * Build the JSON payload for a logged entry.
 	 */
 	public function build_payload( array $entry ): array {
@@ -118,7 +125,7 @@ class SiemDispatcher {
 	/**
 	 * POST a single payload. Returns false when the endpoint could not be reached.
 	 */
-	private function send( array $payload ): bool {
+	private function send( array $payload, bool $blocking = true ): bool {
 		$body = wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
 		if ( false === $body ) {
@@ -145,8 +152,9 @@ class SiemDispatcher {
 		$args = apply_filters(
 			'owc_activity_log_siem_request_args',
 			array(
-				'timeout'     => 3,
+				'timeout'     => $blocking ? 3 : 5,
 				'redirection' => 0,
+				'blocking'    => $blocking,
 				'headers'     => $headers,
 				'body'        => $body,
 				'data_format' => 'body',
@@ -156,7 +164,12 @@ class SiemDispatcher {
 
 		// wp_safe_remote_post() rejects internal hosts to prevent SSRF.
 		$response = wp_safe_remote_post( $this->endpoint, $args );
-		$code     = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( ! $blocking ) {
+			return ! is_wp_error( $response );
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
 
 		if ( ! is_wp_error( $response ) && $code >= 200 && $code < 300 ) {
 			return true;

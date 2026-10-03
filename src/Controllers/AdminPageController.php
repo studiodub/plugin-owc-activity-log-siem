@@ -93,7 +93,8 @@ class AdminPageController {
 		$posted_groups  = isset( $_POST['enabled_groups'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['enabled_groups'] ) ) : array();
 		$enabled_groups = array_intersect( $posted_groups, $all_groups );
 
-		$log_ip = isset( $_POST['log_ip'] ) && '1' === $_POST['log_ip'];
+		$log_ip         = isset( $_POST['log_ip'] ) && '1' === $_POST['log_ip'];
+		$inventory_push = isset( $_POST['wazuh_siem_enable_inventory_push'] ) && '1' === $_POST['wazuh_siem_enable_inventory_push'];
 
 		$current       = owc_activity_log_get_settings();
 		$raw_endpoint  = isset( $_POST['siem_endpoint'] ) ? trim( (string) wp_unslash( $_POST['siem_endpoint'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized below
@@ -133,6 +134,7 @@ class AdminPageController {
 				'siem_token'           => $siem_token,
 			)
 		);
+		update_option( 'wazuh_siem_enable_inventory_push', $inventory_push );
 
 		add_settings_error(
 			'owc_at_settings',

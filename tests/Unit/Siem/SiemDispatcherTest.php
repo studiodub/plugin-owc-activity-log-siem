@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use OWCActivityLog\Siem\SiemDispatcher;
+use OWCActivityLog\Providers\SiemServiceProvider;
 
 function owc_activity_log_siem_entry( array $overrides = array() ): array {
 	return array_merge(
@@ -96,6 +97,40 @@ it(
 		$dispatcher->queue( owc_activity_log_siem_entry() );
 		$dispatcher->flush();
 		$dispatcher->flush();
+	}
+);
+
+it(
+	'sends direct payloads without blocking and with a five second timeout',
+	function () {
+		owc_activity_log_siem_mock_wp();
+		WP_Mock::userFunction( 'is_wp_error' )->andReturn( false );
+		WP_Mock::userFunction( 'wp_safe_remote_post' )
+			->once()
+			->with(
+				'https://siem.example.com',
+				Mockery::on(
+					fn( $args ) => false === $args['blocking']
+						&& 5 === $args['timeout']
+						&& 'plugin_inventory' === json_decode( $args['body'], true )['event']
+				)
+			)
+			->andReturn( array() );
+
+		expect( ( new SiemDispatcher( 'https://siem.example.com' ) )->send_payload( array( 'event' => 'plugin_inventory' ) ) )->toBeTrue();
+	}
+);
+
+it(
+	'does not push inventory when the feature is disabled',
+	function () {
+		WP_Mock::userFunction( 'get_option' )
+			->once()
+			->with( 'wazuh_siem_enable_inventory_push', false )
+			->andReturn( false );
+		WP_Mock::userFunction( 'wp_safe_remote_post' )->never();
+
+		( new SiemServiceProvider() )->push_inventory_to_siem();
 	}
 );
 
