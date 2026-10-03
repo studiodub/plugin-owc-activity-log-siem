@@ -27,15 +27,19 @@ use OWCActivityLog\Siem\SiemDispatcher;
  * @since 1.3.0
  */
 class SiemServiceProvider extends ServiceProvider {
-	private const INVENTORY_OPTION = 'wazuh_siem_enable_inventory_push';
-	private const INVENTORY_CRON   = 'wazuh_siem_daily_inventory_push';
-	private const INVENTORY_HASH   = 'wazuh_siem_last_inventory_hash';
+	private const INVENTORY_OPTION          = 'wazuh_siem_enable_inventory_push';
+	private const INVENTORY_INTERVAL_OPTION = 'wazuh_siem_inventory_push_interval';
+	private const INVENTORY_CRON            = 'wazuh_siem_daily_inventory_push';
+	private const INVENTORY_HASH            = 'wazuh_siem_last_inventory_hash';
 
 	public function register(): void {
 		add_action( 'admin_init', $this->register_inventory_settings( ... ) );
+		add_filter( 'cron_schedules', $this->register_inventory_cron_schedules( ... ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected -- Custom schedules use fixed positive interval values.
 		add_action( 'update_option_' . self::INVENTORY_OPTION, $this->handle_inventory_toggle_change( ... ), 10, 2 );
 		add_action( 'add_option_' . self::INVENTORY_OPTION, $this->handle_inventory_option_added( ... ), 10, 2 );
-		add_action( self::INVENTORY_CRON, $this->push_daily_inventory_to_siem( ... ) );
+		add_action( 'update_option_' . self::INVENTORY_INTERVAL_OPTION, $this->handle_inventory_interval_change( ... ), 10, 2 );
+		add_action( 'add_option_' . self::INVENTORY_INTERVAL_OPTION, $this->handle_inventory_interval_option_added( ... ), 10, 2 );
+		add_action( self::INVENTORY_CRON, $this->push_scheduled_inventory_to_siem( ... ) );
 		add_action( 'activated_plugin', $this->push_inventory_to_siem( ... ) );
 		add_action( 'deactivated_plugin', $this->push_inventory_to_siem( ... ) );
 		add_action( 'deleted_plugin', $this->push_inventory_to_siem( ... ) );
@@ -75,6 +79,80 @@ class SiemServiceProvider extends ServiceProvider {
 			'owc-activity-log-settings',
 			'owc_activity_log_inventory'
 		);
+		register_setting(
+			'owc_activity_log_settings',
+			self::INVENTORY_INTERVAL_OPTION,
+			array(
+				'type'              => 'string',
+				'default'           => 'twenty_four_hours',
+				'sanitize_callback' => static function ( $value ): string {
+					$choices = self::get_inventory_interval_choices();
+
+					return is_string( $value ) && isset( $choices[ $value ] ) ? $value : 'twenty_four_hours';
+				},
+			)
+		);
+		add_settings_field(
+			self::INVENTORY_INTERVAL_OPTION,
+			__( 'Plugin Inventory Push Frequency', 'owc-activity-log' ),
+			$this->render_inventory_interval_select( ... ),
+			'owc-activity-log-settings',
+			'owc_activity_log_inventory'
+		);
+	}
+
+	/** Return the supported inventory intervals in seconds with their UI labels. */
+	private static function get_inventory_interval_choices(): array {
+		return array(
+			'one_minute'        => array(
+				'interval' => 60,
+				'label'    => __( '1 minute', 'owc-activity-log' ),
+			),
+			'five_minutes'      => array(
+				'interval' => 300,
+				'label'    => __( '5 minutes', 'owc-activity-log' ),
+			),
+			'fifteen_minutes'   => array(
+				'interval' => 900,
+				'label'    => __( '15 minutes', 'owc-activity-log' ),
+			),
+			'one_hour'          => array(
+				'interval' => 3600,
+				'label'    => __( '1 hour', 'owc-activity-log' ),
+			),
+			'four_hours'        => array(
+				'interval' => 14400,
+				'label'    => __( '4 hours', 'owc-activity-log' ),
+			),
+			'eight_hours'       => array(
+				'interval' => 28800,
+				'label'    => __( '8 hours', 'owc-activity-log' ),
+			),
+			'twelve_hours'      => array(
+				'interval' => 43200,
+				'label'    => __( '12 hours', 'owc-activity-log' ),
+			),
+			'twenty_four_hours' => array(
+				'interval' => 86400,
+				'label'    => __( '24 hours', 'owc-activity-log' ),
+			),
+		);
+	}
+
+	/** Register the custom recurrence intervals used by the inventory cron. */
+	public function register_inventory_cron_schedules( array $schedules ): array {
+		foreach ( self::get_inventory_interval_choices() as $key => $choice ) {
+			$schedules[ 'wazuh_siem_' . $key ] = array(
+				'interval' => $choice['interval'],
+				'display'  => sprintf(
+					/* translators: %s: inventory push frequency */
+					__( 'SIEM inventory: %s', 'owc-activity-log' ),
+					$choice['label']
+				),
+			);
+		}
+
+		return $schedules;
 	}
 
 	/** Render the registered inventory setting checkbox. */
@@ -83,8 +161,26 @@ class SiemServiceProvider extends ServiceProvider {
 			'<label for="%1$s"><input type="checkbox" id="%1$s" name="%1$s" value="1" %2$s> %3$s</label>',
 			esc_attr( self::INVENTORY_OPTION ),
 			checked( get_option( self::INVENTORY_OPTION, false ), true, false ),
-			esc_html__( 'Periodically send installed plugin versions to Wazuh for automated CVE & vulnerability scanning.', 'owc-activity-log' )
+			esc_html__( 'Periodically send installed plugin versions to the configured SIEM for automated CVE & vulnerability scanning.', 'owc-activity-log' )
 		);
+	}
+
+	/** Render the inventory frequency selector. */
+	public function render_inventory_interval_select(): void {
+		$selected = (string) get_option( self::INVENTORY_INTERVAL_OPTION, 'twenty_four_hours' );
+
+		printf( '<select id="%1$s" name="%1$s">', esc_attr( self::INVENTORY_INTERVAL_OPTION ) );
+
+		foreach ( self::get_inventory_interval_choices() as $key => $choice ) {
+			printf(
+				'<option value="%1$s" %2$s>%3$s</option>',
+				esc_attr( $key ),
+				selected( $selected, $key, false ),
+				esc_html( $choice['label'] )
+			);
+		}
+
+		printf( '</select><p class="description">%s</p>', esc_html__( 'Choose how often the full plugin inventory is sent to the configured SIEM.', 'owc-activity-log' ) );
 	}
 
 	/** Handle changes to an existing inventory setting. */
@@ -97,17 +193,46 @@ class SiemServiceProvider extends ServiceProvider {
 		$this->apply_inventory_setting( $value );
 	}
 
+	/** Reschedule inventory pushes when an existing frequency changes. */
+	public function handle_inventory_interval_change( mixed $old_value, mixed $new_value ): void {
+		$this->reschedule_inventory_if_enabled();
+	}
+
+	/** Reschedule inventory pushes when the frequency option is first added. */
+	public function handle_inventory_interval_option_added( string $option, mixed $value ): void {
+		$this->reschedule_inventory_if_enabled();
+	}
+
+	private function reschedule_inventory_if_enabled(): void {
+		if ( get_option( self::INVENTORY_OPTION, false ) ) {
+			$this->schedule_inventory_push();
+		}
+	}
+
 	private function apply_inventory_setting( mixed $enabled ): void {
 		if ( $enabled ) {
-			if ( ! wp_next_scheduled( self::INVENTORY_CRON ) ) {
-				wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', self::INVENTORY_CRON );
-			}
-
+			$this->schedule_inventory_push();
 			$this->send_inventory( true );
 			return;
 		}
 
 		wp_clear_scheduled_hook( self::INVENTORY_CRON );
+	}
+
+	private function schedule_inventory_push(): void {
+		$frequency = (string) get_option( self::INVENTORY_INTERVAL_OPTION, 'twenty_four_hours' );
+		$choices   = self::get_inventory_interval_choices();
+
+		if ( ! isset( $choices[ $frequency ] ) ) {
+			$frequency = 'twenty_four_hours';
+		}
+
+		wp_clear_scheduled_hook( self::INVENTORY_CRON );
+		wp_schedule_event(
+			time() + $choices[ $frequency ]['interval'],
+			'wazuh_siem_' . $frequency,
+			self::INVENTORY_CRON
+		);
 	}
 
 	/** Collect every installed plugin and its active state. */
@@ -137,7 +262,7 @@ class SiemServiceProvider extends ServiceProvider {
 	}
 
 	/** Send inventory on the daily cron, bypassing event deduplication. */
-	public function push_daily_inventory_to_siem(): void {
+	public function push_scheduled_inventory_to_siem(): void {
 		if ( ! get_option( self::INVENTORY_OPTION, false ) ) {
 			return;
 		}
@@ -193,7 +318,7 @@ class SiemServiceProvider extends ServiceProvider {
 			return;
 		}
 
-		$dispatcher = new SiemDispatcher( $endpoint, (string) ( $settings['siem_token'] ?? '' ) );
+		$dispatcher   = new SiemDispatcher( $endpoint, (string) ( $settings['siem_token'] ?? '' ) );
 		$payload_json = wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
 		if ( false !== $payload_json ) {
@@ -214,6 +339,6 @@ class SiemServiceProvider extends ServiceProvider {
 			return;
 		}
 
-		error_log( '[OWC Activity Log SIEM] ' . $message );
+		error_log( '[OWC Activity Log SIEM] ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Only called when WP_DEBUG and WP_DEBUG_LOG are enabled.
 	}
 }

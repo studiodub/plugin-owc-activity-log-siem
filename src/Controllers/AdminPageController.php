@@ -93,8 +93,17 @@ class AdminPageController {
 		$posted_groups  = isset( $_POST['enabled_groups'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_POST['enabled_groups'] ) ) : array();
 		$enabled_groups = array_intersect( $posted_groups, $all_groups );
 
-		$log_ip         = isset( $_POST['log_ip'] ) && '1' === $_POST['log_ip'];
-		$inventory_push = isset( $_POST['wazuh_siem_enable_inventory_push'] ) && '1' === $_POST['wazuh_siem_enable_inventory_push'];
+		$log_ip = isset( $_POST['log_ip'] ) && '1' === $_POST['log_ip'];
+
+		$inventory_push            = isset( $_POST['wazuh_siem_enable_inventory_push'] ) && '1' === $_POST['wazuh_siem_enable_inventory_push'];
+		$inventory_interval        = isset( $_POST['wazuh_siem_inventory_push_interval'] )
+			? sanitize_key( (string) wp_unslash( $_POST['wazuh_siem_inventory_push_interval'] ) )
+			: (string) get_option( 'wazuh_siem_inventory_push_interval', 'twenty_four_hours' );
+		$valid_inventory_intervals = array( 'one_minute', 'five_minutes', 'fifteen_minutes', 'one_hour', 'four_hours', 'eight_hours', 'twelve_hours', 'twenty_four_hours' );
+
+		if ( ! in_array( $inventory_interval, $valid_inventory_intervals, true ) ) {
+			$inventory_interval = 'twenty_four_hours';
+		}
 
 		$current       = owc_activity_log_get_settings();
 		$raw_endpoint  = isset( $_POST['siem_endpoint'] ) ? trim( (string) wp_unslash( $_POST['siem_endpoint'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized below
@@ -135,6 +144,7 @@ class AdminPageController {
 			)
 		);
 		update_option( 'wazuh_siem_enable_inventory_push', $inventory_push );
+		update_option( 'wazuh_siem_inventory_push_interval', $inventory_interval );
 
 		add_settings_error(
 			'owc_at_settings',

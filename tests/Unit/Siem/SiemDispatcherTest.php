@@ -135,6 +135,55 @@ it(
 );
 
 it(
+	'registers the eight supported inventory cron intervals',
+	function () {
+		WP_Mock::userFunction( '__' )->andReturnUsing( fn( $text ) => $text );
+
+		$schedules = ( new SiemServiceProvider() )->register_inventory_cron_schedules( array() );
+
+		expect( $schedules['wazuh_siem_one_minute']['interval'] )->toBe( 60 );
+		expect( $schedules['wazuh_siem_five_minutes']['interval'] )->toBe( 300 );
+		expect( $schedules['wazuh_siem_fifteen_minutes']['interval'] )->toBe( 900 );
+		expect( $schedules['wazuh_siem_one_hour']['interval'] )->toBe( 3600 );
+		expect( $schedules['wazuh_siem_four_hours']['interval'] )->toBe( 14400 );
+		expect( $schedules['wazuh_siem_eight_hours']['interval'] )->toBe( 28800 );
+		expect( $schedules['wazuh_siem_twelve_hours']['interval'] )->toBe( 43200 );
+		expect( $schedules['wazuh_siem_twenty_four_hours']['interval'] )->toBe( 86400 );
+	}
+);
+
+it(
+	'reschedules inventory pushes when the selected interval changes',
+	function () {
+		WP_Mock::userFunction( 'get_option' )->andReturnUsing(
+			static function ( $option, $fallback = false ) {
+				if ( 'wazuh_siem_enable_inventory_push' === $option ) {
+					return true;
+				}
+
+				if ( 'wazuh_siem_inventory_push_interval' === $option ) {
+					return 'one_hour';
+				}
+
+				return $fallback;
+			}
+		);
+		WP_Mock::userFunction( 'wp_clear_scheduled_hook' )
+			->once()
+			->with( 'wazuh_siem_daily_inventory_push' );
+		WP_Mock::userFunction( 'wp_schedule_event' )
+			->once()
+			->with(
+				Mockery::on( fn( $timestamp ) => $timestamp >= time() + 3600 ),
+				'wazuh_siem_one_hour',
+				'wazuh_siem_daily_inventory_push'
+			);
+
+		( new SiemServiceProvider() )->handle_inventory_interval_change( 'twenty_four_hours', 'one_hour' );
+	}
+);
+
+it(
 	'omits the authorization header when no token is set',
 	function () {
 		owc_activity_log_siem_mock_wp();

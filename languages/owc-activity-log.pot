@@ -593,3 +593,57 @@ msgstr ""
 #: src/Views/admin/settings-page.php
 msgid "Optional. Sent as \"Authorization: Bearer <token>\" header. Leave empty to keep the saved token."
 msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:77
+msgid "Enable Plugin Inventory Push"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:164
+msgid "Periodically send installed plugin versions to the configured SIEM for automated CVE & vulnerability scanning."
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:97
+msgid "Plugin Inventory Push Frequency"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:183
+msgid "Choose how often the full plugin inventory is sent to the configured SIEM."
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:109
+msgid "1 minute"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:113
+msgid "5 minutes"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:117
+msgid "15 minutes"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:121
+msgid "1 hour"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:125
+msgid "4 hours"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:129
+msgid "8 hours"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:133
+msgid "12 hours"
+msgstr ""
+
+#: src/Providers/SiemServiceProvider.php:137
+msgid "24 hours"
+msgstr ""
+
+#. translators: %s: inventory push frequency
+#: src/Providers/SiemServiceProvider.php:149
+#, php-format
+msgid "SIEM inventory: %s"
+msgstr ""

@@ -597,3 +597,57 @@ msgstr "Opgeslagen token verwijderen"
 #: src/Views/admin/settings-page.php
 msgid "Optional. Sent as \"Authorization: Bearer <token>\" header. Leave empty to keep the saved token."
 msgstr "Optioneel. Wordt verzonden als \"Authorization: Bearer <token>\"-header. Laat leeg om het opgeslagen token te behouden."
+
+#: src/Providers/SiemServiceProvider.php:77
+msgid "Enable Plugin Inventory Push"
+msgstr "Plugininventaris naar de SIEM-tool verzenden inschakelen"
+
+#: src/Providers/SiemServiceProvider.php:164
+msgid "Periodically send installed plugin versions to the configured SIEM for automated CVE & vulnerability scanning."
+msgstr "Verzend periodiek de versies van geïnstalleerde plugins naar de geconfigureerde SIEM-oplossing voor automatische controle op CVE's en kwetsbaarheden."
+
+#: src/Providers/SiemServiceProvider.php:97
+msgid "Plugin Inventory Push Frequency"
+msgstr "Frequentie van plugininventarisverzending"
+
+#: src/Providers/SiemServiceProvider.php:183
+msgid "Choose how often the full plugin inventory is sent to the configured SIEM."
+msgstr "Kies hoe vaak de volledige plugininventaris naar de geconfigureerde SIEM-oplossing wordt verzonden."
+
+#: src/Providers/SiemServiceProvider.php:109
+msgid "1 minute"
+msgstr "1 minuut"
+
+#: src/Providers/SiemServiceProvider.php:113
+msgid "5 minutes"
+msgstr "5 minuten"
+
+#: src/Providers/SiemServiceProvider.php:117
+msgid "15 minutes"
+msgstr "15 minuten"
+
+#: src/Providers/SiemServiceProvider.php:121
+msgid "1 hour"
+msgstr "1 uur"
+
+#: src/Providers/SiemServiceProvider.php:125
+msgid "4 hours"
+msgstr "4 uur"
+
+#: src/Providers/SiemServiceProvider.php:129
+msgid "8 hours"
+msgstr "8 uur"
+
+#: src/Providers/SiemServiceProvider.php:133
+msgid "12 hours"
+msgstr "12 uur"
+
+#: src/Providers/SiemServiceProvider.php:137
+msgid "24 hours"
+msgstr "24 uur"
+
+#. translators: %s: inventory push frequency
+#: src/Providers/SiemServiceProvider.php:149
+#, php-format
+msgid "SIEM inventory: %s"
+msgstr "SIEM-inventaris: %s"
